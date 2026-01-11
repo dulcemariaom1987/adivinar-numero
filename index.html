@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivina el Número</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Inicio -->
+        <div id="startScreen" class="card">
+            <div class="game-icon">
+                <svg class="icon-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+            </div>
+            <h1 class="title">Adivina el Número</h1>
+            <p class="subtitle">¿Podrás descubrir el número secreto?</p>
+            
+            <div class="difficulty-selector">
+                <h3>Selecciona la Dificultad</h3>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn easy" onclick="selectDifficulty('easy')">
+                        <div class="difficulty-icon">😊</div>
+                        <div class="difficulty-name">Fácil</div>
+                        <div class="difficulty-range">1 - 50</div>
+                    </button>
+                    <button class="difficulty-btn medium selected" onclick="selectDifficulty('medium')">
+                        <div class="difficulty-icon">🤔</div>
+                        <div class="difficulty-name">Medio</div>
+                        <div class="difficulty-range">1 - 100</div>
+                    </button>
+                    <button class="difficulty-btn hard" onclick="selectDifficulty('hard')">
+                        <div class="difficulty-icon">🔥</div>
+                        <div class="difficulty-name">Difícil</div>
+                        <div class="difficulty-range">1 - 500</div>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="startGame()">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                ¡Comenzar Juego!
+            </button>
+        </div>
+
+        <!-- Pantalla de Juego -->
+        <div id="gameScreen" class="card hidden">
+            <div class="game-header">
+                <div class="stat-item">
+                    <div class="stat-label">Intentos</div>
+                    <div class="stat-value" id="attemptsDisplay">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Rango</div>
+                    <div class="stat-value" id="rangeDisplay">1-100</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Récord</div>
+                    <div class="stat-value" id="recordDisplay">-</div>
+                </div>
+            </div>
+
+            <div class="secret-box">
+                <div class="secret-number" id="secretDisplay">?</div>
+                <div class="hint-text" id="hintText">¡Adivina el número secreto!</div>
+            </div>
+
+            <div class="temperature-bar">
+                <div class="temp-indicator" id="tempIndicator">
+                    <span id="tempEmoji">❄️</span>
+                    <span id="tempText">Frío</span>
+                </div>
+                <div class="temp-fill" id="tempFill"></div>
+            </div>
+
+            <div class="input-section">
+                <input 
+                    type="number" 
+                    id="guessInput" 
+                    class="guess-input" 
+                    placeholder="Tu número"
+                    min="1"
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="btn-guess" onclick="makeGuess()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Adivinar
+                </button>
+            </div>
+
+            <div class="guesses-history" id="guessesHistory"></div>
+
+            <button class="btn-secondary" onclick="restartGame()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Reiniciar
+            </button>
+        </div>
+
+        <!-- Pantalla de Victoria -->
+        <div id="winScreen" class="card hidden">
+            <div class="confetti" id="confetti"></div>
+            <svg class="win-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h1 class="win-title">¡Felicidades!</h1>
+            <p class="win-message">¡Adivinaste el número secreto!</p>
+            
+            <div class="win-number" id="winNumber">42</div>
+            
+            <div class="win-stats">
+                <div class="win-stat">
+                    <div class="win-stat-label">Intentos</div>
+                    <div class="win-stat-value" id="finalAttempts">0</div>
+                </div>
+                <div class="win-stat">
+                    <div class="win-stat-label">Dificultad</div>
+                    <div class="win-stat-value" id="finalDifficulty">Medio</div>
+                </div>
+            </div>
+
+            <div class="win-message-detail" id="winMessageDetail"></div>
+
+            <div class="win-buttons">
+                <button class="btn-primary" onclick="startGame()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Jugar de Nuevo
+                </button>
+                <button class="btn-secondary" onclick="goToStart()">
+                    Cambiar Dificultad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
